@@ -11,21 +11,23 @@ import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 import { useQuery, useMutation } from "@apollo/client";
+import { GET_ME } from '../utils/queries';
 
 const SavedBooks = () => {
-  
-  const { userData } = useQuery(GET_ME);
-  const [ removeBook, { error }] = useMutation(REMOVE_BOOK);
-  const [setUserData] = useState({});
-  [userData] = useState({});
-   
+  const { profileId } = useParams();
+
+  const [userData, setUserData] = useState({});
 
   // use this to determine if `useEffect()` hook needs to run again
   const userDataLength = Object.keys(userData).length;
 
+  const {loading, UserData} = useQuery(GET_ME, {
+     variables: { userId: userId},
+  });
+
   useEffect(() => {
     const getUserData = async () => {
-      try {
+       try {
         const token = Auth.loggedIn() ? Auth.getToken() : null;
 
         if (!token) {
@@ -57,7 +59,7 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await removeBook(bookId, token);
+      const response = await deleteBook(bookId, token);
 
       if (!response.ok) {
         throw new Error('something went wrong!');
